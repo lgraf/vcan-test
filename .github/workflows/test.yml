@@ -9,6 +9,10 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
+          sudo apt update
+          # vcan kernel module
+          sudo apt install -y linux-modules-extra-$(uname -r)
+          # test dependencies
           pip install python-can pytest
 
       - name: Setup virtual CAN interface
@@ -17,8 +21,15 @@ jobs:
           sudo ip link add dev vcan0 type vcan
           sudo ip link set up vcan0
 
+          echo "can interface stats"
+          ip -details -statistics link show vcan0
+
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Run tests
-        run: pytest tests/
+        run: |
+          pytest tests/
+
+          echo "can interface stats"
+          ip -details -statistics link show vcan0
